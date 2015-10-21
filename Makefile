@@ -1,16 +1,20 @@
+# Makefile pro projekt do predmetu ISA, rok 2015/2016
+# Varianta: FTP/SSH Honeypot
+# Autor: Dominika Regeciova, xregec00
+
 CXX=g++
 RM=rm -rf
 CXXFLAGS=-std=c++11 -g -Wall
-SRC=fakesrv.cpp
-HDR=fakesrv.hpp
+SRCS=fakesrv.cpp
+HDRS=fakesrv.hpp
 EXECUTABLE=fakesrv
 
 .PHONY: clean
 
 default: $(EXECUTABLE)
 
-$(EXECUTABLE): $(SRC) $(HDR)
-	$(CXX) $(CXXFLAGS) $(SRC) -o $@
+$(EXECUTABLE): $(SRCS) $(HDRS)
+	$(CXX) $(CXXFLAGS) $(SRCS) -o $@
 
 run: $((EXECUTABLE)
 	./$(EXECUTABLE)
