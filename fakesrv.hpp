@@ -1,7 +1,7 @@
 /*
-    Projekt do predmetu ISA, rok 2015/2016
-    Varianta: FTP/SSH Honeypot
-    Autor: Dominika Regeciova, xregec00
+    ISA course project, 2015/2016
+    Variant: FTP/SSH Honeypot
+    Author: Dominika Regeciova, xregec00
 */
 
 #ifndef __DATA_DEFINED__
@@ -10,6 +10,8 @@
 
 using namespace std;
 
-#define SAY_HELLO "Hello World!\n"
+#define SAY_HELLO "Hello World!"
+#define RESULT_OK 0
+#define RESULT_FAILURE 1
 
 #endif

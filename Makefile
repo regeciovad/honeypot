@@ -1,6 +1,6 @@
-# Makefile pro projekt do predmetu ISA, rok 2015/2016
-# Varianta: FTP/SSH Honeypot
-# Autor: Dominika Regeciova, xregec00
+# Makefile for ISA course project, 2015/2016
+# Variant: FTP/SSH Honeypot
+# Author: Dominika Regeciova, xregec00
 
 CXX=g++
 RM=rm -rf
@@ -16,7 +16,7 @@ default: $(EXECUTABLE)
 $(EXECUTABLE): $(SRCS) $(HDRS)
 	$(CXX) $(CXXFLAGS) $(SRCS) -o $@
 
-run: $((EXECUTABLE)
+run: $(EXECUTABLE)
 	./$(EXECUTABLE)
 
 clean:
