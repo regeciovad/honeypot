@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     // Mode was something else or missing
     else
     {
-        cerr << "Wrond arguments (mode)!" << endl;
+        cerr << "Wrong arguments (mode)!" << endl;
         return RESULT_FAILURE;
     }
 
@@ -124,7 +124,18 @@ int main(int argc, char *argv[])
 void Print_Help()
 {
     cout << "FTP/SSH Honeypot" << endl;
-    cout << "There will be help..." << endl;
+    cout << "Usage: ./fakesrv -m mode -a address -p port -l logfile" << endl;
+    cout << "                 [-r rsakey] [-c max_clients] [-t max_attempts]" << endl;
+    cout << "Required arguments:" << endl;
+    cout << "   -m mode       Mode name (ftp or ssh)" << endl;
+    cout << "   -a address    IPv4 or IPv6 address" << endl;
+    cout << "   -p port       Port number" << endl;
+    cout << "   -l logfile    Logfile" << endl;
+    cout << "Optional arguments:" << endl;
+    cout << "   -r rsakey     Private RSA key, REQUIRED in ssh mode" << endl;
+    cout << "   -c number     Maximal number of connected users (default 10)" << endl;
+    cout << "   -t number     Maximal number of login tries (default 3) in ssh mode" << endl;
+    cout << "Created by Dominika Regeciova" << endl;
 }
 
 // Function returning actual date and time in format: YYYY-MM-DD HH:MM:SS
