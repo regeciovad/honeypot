@@ -15,22 +15,22 @@ using namespace std;
 const int BUFFERSIZE = 255;
 
 // Function declarations
-void printHelp();
-string getTime();
+void Print_Help();
+string Get_Time();
 
 int main(int argc, char *argv[])
 {
     // ./fakesrv
     if (argc == 1)
     {
-        printHelp();
+        Print_Help();
         return RESULT_FAILURE;
     }
 
     // Arguments initialization
     int option = 0;
     string mode;
-    string addr;
+    string address;
     int port = 0;
     string logfile;
     string rsakey;
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
                 mode = optarg;
                 break;
             case 'a':
-                addr = optarg;
+                address = optarg;
                 break;
             case 'p':
                 port = atoi(optarg);
@@ -64,16 +64,12 @@ int main(int argc, char *argv[])
                 max_attempts = atoi(optarg);
                 break;
             default:
-                printHelp();
+                Print_Help();
                 return RESULT_FAILURE;
         }
     }
+
     // Mode control, it have to be 'ftp' or 'ssh'
-    if (!mode.compare("ftp") and !mode.compare("ssh"))
-    {
-        cerr << "Wrond arguments (mode)!" << endl;
-        return RESULT_FAILURE;
-    }
     // If mode is ssh, rsakey must be specified
     if (mode == "ssh")
     {
@@ -83,10 +79,26 @@ int main(int argc, char *argv[])
             return RESULT_FAILURE;
         }
     }
+    // if mode is ftp, rsakey and max attemps should not be defiend
+    else if (mode == "ftp")
+    {
+        if (rsakey != "" || (max_attempts != 3))
+        {
+            cerr << "Too many argument for ftp mode!" << endl;
+            return RESULT_FAILURE;
+        }
+    }
+    // Mode was something else or missing
+    else
+    {
+        cerr << "Wrond arguments (mode)!" << endl;
+        return RESULT_FAILURE;
+    }
+
     // IP adress control
-    // DO TO: Control IP addrs
+    // DO TO: Control IP address
     // DO TO: Check if ip is ipv4 or ipv6
-    if (addr == "")
+    if (address == "")
     {
         cerr << "Missing argument -a!" << endl;
         return RESULT_FAILURE;
@@ -99,24 +111,24 @@ int main(int argc, char *argv[])
     }
 
     cout << "Mode: " << mode << endl;
-    cout << "Addrs: " << addr << endl;
+    cout << "Addresss: " << address << endl;
     cout << "Port: " << port << endl;
     cout << "Logfile: " << logfile << endl;
     cout << "RSAkey: " << rsakey << endl;
     cout << "Max client: " << max_clients << endl;
     cout << "Max attempts: " << max_attempts << endl;
-    cout << getTime() << endl;
+    cout << Get_Time() << endl;
 }
 
 // Function prints help for application
-void printHelp()
+void Print_Help()
 {
     cout << "FTP/SSH Honeypot" << endl;
     cout << "There will be help..." << endl;
 }
 
 // Function returning actual date and time in format: YYYY-MM-DD HH:MM:SS
-string getTime()
+string Get_Time()
 {
     // Get current time and convert it to tm
     time_t t = time(0);
