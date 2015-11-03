@@ -4,19 +4,10 @@
     Author: Dominika Regeciova, xregec00
 */
 
-#include <iostream>
-#include <string.h>
-#include <stdio.h>
-#include <ctime>
-#include <getopt.h>
 #include "fakesrv.hpp"
+#include "logging.hpp"
 
 using namespace std;
-const int BUFFERSIZE = 255;
-
-// Function declarations
-void Print_Help();
-string Get_Time();
 
 int main(int argc, char *argv[])
 {
@@ -36,6 +27,9 @@ int main(int argc, char *argv[])
     string rsakey;
     int max_clients = 10;
     int max_attempts = 3;
+    struct sockaddr_in sa;
+    struct sockaddr_in6 sa6;
+    string ip_version;
 
     // Arguments check
     while ((option = getopt(argc, argv, "m:a:p:l:r:c:t:")) != -1)
@@ -69,6 +63,45 @@ int main(int argc, char *argv[])
         }
     }
 
+    // IP adress control
+    if (address == "")
+    {
+        cerr << "Missing argument -a!" << endl;
+        return RESULT_FAILURE;
+    }
+    else if (inet_pton(AF_INET, address.c_str(), &(sa.sin_addr)) != 0)
+    {
+        ip_version = "IPv4";
+    } 
+    else if (inet_pton(AF_INET6, address.c_str(), &(sa6.sin6_addr)) != 0)
+    {
+        ip_version = "IPv6";
+    }
+    else
+    {
+        cerr << "Wrong format of IP address!" << endl;
+        return RESULT_FAILURE;
+    }
+
+    // Port number control
+    if (port == 0)
+    {
+        cerr << "Missing argument -p!" << endl;
+        return RESULT_FAILURE;
+    }
+    else if (port > 65535)
+    {
+        cerr << "Wrong argument -p!" << endl;
+        return RESULT_FAILURE;
+    }
+
+    // Logfile control
+    if (logfile == "")
+    {
+        cerr << "Wrong argument -l!" << endl;
+        return RESULT_FAILURE;
+    }
+
     // Mode control, it have to be 'ftp' or 'ssh'
     // If mode is ssh, rsakey must be specified
     if (mode == "ssh")
@@ -95,23 +128,9 @@ int main(int argc, char *argv[])
         return RESULT_FAILURE;
     }
 
-    // IP adress control
-    // DO TO: Control IP address
-    // DO TO: Check if ip is ipv4 or ipv6
-    if (address == "")
-    {
-        cerr << "Missing argument -a!" << endl;
-        return RESULT_FAILURE;
-    }
-    // Port number control
-    if (port == 0)
-    {
-        cerr << "Missing argument -p!" << endl;
-        return RESULT_FAILURE;
-    }
-
     cout << "Mode: " << mode << endl;
     cout << "Addresss: " << address << endl;
+    cout << "Version: " << ip_version << endl;
     cout << "Port: " << port << endl;
     cout << "Logfile: " << logfile << endl;
     cout << "RSAkey: " << rsakey << endl;
@@ -136,22 +155,4 @@ void Print_Help()
     cout << "   -c number     Maximal number of connected users (default 10)" << endl;
     cout << "   -t number     Maximal number of login tries (default 3) in ssh mode" << endl;
     cout << "Created by Dominika Regeciova" << endl;
-}
-
-// Function returning actual date and time in format: YYYY-MM-DD HH:MM:SS
-string Get_Time()
-{
-    // Get current time and convert it to tm
-    time_t t = time(0);
-    tm now = *localtime(&t);
-    char current_time[BUFFERSIZE] = {0};
-    // hodiny jsou jinak %H-%M-%S
-    const char format_time[] = "%Y-%m-%d %X";
-    if (strftime(current_time, sizeof(current_time)-1, format_time, &now) > 0)
-    {
-        //string string_current_time(current_time);
-        return string(current_time);
-    }
-    else
-        return "Strftime failed.";
 }

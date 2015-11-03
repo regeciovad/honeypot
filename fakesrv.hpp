@@ -4,14 +4,22 @@
     Author: Dominika Regeciova, xregec00
 */
 
-#ifndef __DATA_DEFINED__
-#define __DATA_DEFINED__
+#ifndef __fakesrv_defined__
+#define __fakesrv_defined__
 
-
-using namespace std;
+#include <iostream>
+#include <string.h>
+#include <stdio.h>
+#include <getopt.h>
+#include <arpa/inet.h>
 
 #define SAY_HELLO "Hello World!"
 #define RESULT_OK 0
 #define RESULT_FAILURE 1
+
+using namespace std;
+
+// Function declarations
+void Print_Help();
 
 #endif
