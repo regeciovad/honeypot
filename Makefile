@@ -5,8 +5,8 @@
 CXX=g++
 RM=rm -rf
 CXXFLAGS=-std=c++11 -g -Wall
-SRCS=fakesrv.cpp logging.cpp
-HDRS=fakesrv.hpp logging.hpp
+SRCS=fakesrv.cpp ftp.cpp logging.cpp
+HDRS=fakesrv.hpp ftp.hpp logging.hpp
 EXECUTABLE=fakesrv
 
 .PHONY: clean

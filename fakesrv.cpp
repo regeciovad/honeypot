@@ -5,7 +5,7 @@
 */
 
 #include "fakesrv.hpp"
-#include "logging.hpp"
+#include "ftp.hpp"
 
 using namespace std;
 
@@ -120,6 +120,7 @@ int main(int argc, char *argv[])
             cerr << "Too many argument for ftp mode!" << endl;
             return RESULT_FAILURE;
         }
+        Fake_FTP_Server();
     }
     // Mode was something else or missing
     else
@@ -136,7 +137,7 @@ int main(int argc, char *argv[])
     cout << "RSAkey: " << rsakey << endl;
     cout << "Max client: " << max_clients << endl;
     cout << "Max attempts: " << max_attempts << endl;
-    cout << Get_Time() << endl;
+    //cout << Get_Time() << endl;
 }
 
 // Function prints help for application
