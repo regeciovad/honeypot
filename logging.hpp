@@ -13,7 +13,10 @@
 
 using namespace std;
 
+#define RESULT_FAILURE 1
+
 // Function declarations
+void Print_Error(string message);
 string Get_Time();
 
 #endif

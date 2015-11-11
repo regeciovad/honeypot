@@ -11,9 +11,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <getopt.h>
-#include <arpa/inet.h>
 
-#define SAY_HELLO "Hello World!"
 #define RESULT_OK 0
 #define RESULT_FAILURE 1
 

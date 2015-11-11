@@ -10,10 +10,17 @@
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#define RESULT_OK 0
+#define RESULT_FAILURE 1
 
 using namespace std;
 
 // Function declarations
-void Fake_FTP_Server();
+int Fake_FTP_Server(string address, int port, string logfile, int max_clients);
 
 #endif

@@ -20,3 +20,14 @@ IPv6 KO
 1..2
 1::8:
 234
+
+# To Do List:
+* Change error return na
+
+void Print_Error(string message)
+{
+    cerr << message << endl;
+    exit(RESULT_FAILURE);
+}
+Where? logging.cpp
+
