@@ -4,7 +4,7 @@
 
 CXX=g++
 RM=rm -rf
-CXXFLAGS=-std=c++11 -g -Wall
+CXXFLAGS=-std=c++11 -g -Wall -pedantic -pthread
 SRCS=fakesrv.cpp ftp.cpp logging.cpp
 HDRS=fakesrv.hpp ftp.hpp logging.hpp
 EXECUTABLE=fakesrv

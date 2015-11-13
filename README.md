@@ -15,6 +15,8 @@ IPv4 KO
 IPv6 OK
 1::8
 2001:0db8::ff00:42:6854
+./fakesrv -m ftp -a fe80::21e:67ff:ab1a:b1ff -p 21 -l hello
+sudo ./fakesrv -m ftp -a ::1 -p 21 -l hello
 
 IPv6 KO
 1..2
@@ -22,12 +24,4 @@ IPv6 KO
 234
 
 # To Do List:
-* Change error return na
-
-void Print_Error(string message)
-{
-    cerr << message << endl;
-    exit(RESULT_FAILURE);
-}
-Where? logging.cpp
 
