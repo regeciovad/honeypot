@@ -11,11 +11,11 @@ using namespace std;
 
 int signal_detected = 0;
 
-typedef struct
+struct thread_data
 {
-    sockaddr_in client_address;
+    char client_address [INET6_ADDRSTRLEN];
     int client_number;
-}thread_data;
+};
 
 // Detection of SIGINT and SIGQUIT
 void Signal_Catcher(int n)
@@ -25,11 +25,14 @@ void Signal_Catcher(int n)
 
 void * Connect(void *pointer)
 {
-    thread_data *client_thread = (thread_data *)pointer;
+    struct thread_data *client_thread = (struct thread_data *)pointer;
+    //string baf = client_thread->client_address;
+    cout << client_thread->client_address << endl;
     string msg="220 Service ready for new user\r\n";
     if (send(client_thread->client_number, msg.c_str(), msg.length(), 0) < 0)
         Print_Error("Sending message error!");
     close(client_thread->client_number);
+    //free(pointer);
     pthread_exit(NULL);
 }
 
@@ -48,7 +51,6 @@ int Fake_FTP_Server(string address, int port, string logfile, int max_clients)
     signal_action.sa_flags = 0;
     sigaction(SIGINT, &signal_action, NULL);
     sigaction(SIGQUIT, &signal_action, NULL);
-    char str [INET6_ADDRSTRLEN];
     int optval = 1;
 
     // Control of IP address and creating of socket, bind
@@ -60,8 +62,6 @@ int Fake_FTP_Server(string address, int port, string logfile, int max_clients)
             Print_Error("Socket creation error!");
         server_address.sin_family = AF_INET;
         server_address.sin_port = htons(port);
-        inet_ntop(AF_INET, &server_address.sin_addr, str, INET6_ADDRSTRLEN);
-        cout << str << endl;
         setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval, sizeof(optval));
         if (bind(sock,(struct sockaddr *)&server_address, sizeof(server_address))<0)
             Print_Error("Bind error!");
@@ -74,8 +74,6 @@ int Fake_FTP_Server(string address, int port, string logfile, int max_clients)
             Print_Error("Socket creation error!");
         server_address6.sin6_family = AF_INET6;
         server_address6.sin6_port = htons(port);
-        inet_ntop(AF_INET6, &server_address6.sin6_addr, str, INET6_ADDRSTRLEN);
-        cout << str << endl;
         setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
         if (bind(sock, (struct sockaddr *)&server_address6, sizeof(server_address6))<0)
             Print_Error("Bind error!");
@@ -93,20 +91,33 @@ int Fake_FTP_Server(string address, int port, string logfile, int max_clients)
     {
         sigaction(SIGINT, &signal_action, NULL);
         sigaction(SIGQUIT, &signal_action, NULL);
-        thread_data *data = new thread_data;
+        struct sockaddr_storage client_address;
+        struct thread_data data;
         int client;
-        sa_len = sizeof(data->client_address);
-        if ((client = accept(sock, (struct sockaddr *) &(data->client_address), &sa_len)) < 0)
-            Print_Error("Accept error!");
-        data->client_number=client;
+        //sa_len = sizeof(data->client_address);
+        sa_len = sizeof(client_address);
+        if ((client = accept(sock, (struct sockaddr *)&client_address, &sa_len)) < 0)
+            return (RESULT_OK);
+        getpeername(client, (struct sockaddr *)&client_address, &sa_len);
+        if (client_address.ss_family == AF_INET)
+        {
+            struct sockaddr_in * c_address = (struct sockaddr_in *)&client_address;
+            inet_ntop(AF_INET, &c_address->sin_addr, data.client_address, INET6_ADDRSTRLEN);
+        }
+        else
+        {
+            struct sockaddr_in6 * c_address = (struct sockaddr_in6 *)&client_address;
+            inet_ntop(AF_INET6, &c_address->sin6_addr, data.client_address, INET6_ADDRSTRLEN);
+        }
+        data.client_number=client;
 
+        //data->client_address = "12.13.14.15";
         if (signal_detected)
             break;
 
         pthread_t new_thread;
-        if (pthread_create(&new_thread, NULL, Connect, (void *)data) != 0)
+        if (pthread_create(&new_thread, NULL, &Connect, (void *)&data) != 0)
             Print_Error("New thread creation error!");
-        delete [] data;
     }while (!signal_detected);
 
     //cout << Get_Time() << endl;

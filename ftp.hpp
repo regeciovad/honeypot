@@ -18,6 +18,7 @@
 #include <signal.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <netdb.h>
 
 #define RESULT_OK 0
 #define RESULT_FAILURE 1
