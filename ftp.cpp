@@ -10,6 +10,9 @@
 using namespace std;
 
 int signal_detected = 0;
+string server_logfile;
+
+pthread_mutex_t mutex_logfile = PTHREAD_MUTEX_INITIALIZER;
 
 struct thread_data
 {
@@ -26,11 +29,17 @@ void Signal_Catcher(int n)
 void * Connect(void *pointer)
 {
     struct thread_data *client_thread = (struct thread_data *)pointer;
-    //string baf = client_thread->client_address;
     cout << client_thread->client_address << endl;
+    cout << server_logfile << endl;
+    string address = string(client_thread->client_address);
+    string name = "Karel";
+    string password = "mojexxx";
     string msg="220 Service ready for new user\r\n";
     if (send(client_thread->client_number, msg.c_str(), msg.length(), 0) < 0)
         Print_Error("Sending message error!");
+    pthread_mutex_lock(&mutex_logfile);
+    write_log(server_logfile, "FTP", address, name, password);
+    pthread_mutex_unlock(&mutex_logfile);
     close(client_thread->client_number);
     //free(pointer);
     pthread_exit(NULL);
@@ -94,7 +103,6 @@ int Fake_FTP_Server(string address, int port, string logfile, int max_clients)
         struct sockaddr_storage client_address;
         struct thread_data data;
         int client;
-        //sa_len = sizeof(data->client_address);
         sa_len = sizeof(client_address);
         if ((client = accept(sock, (struct sockaddr *)&client_address, &sa_len)) < 0)
             return (RESULT_OK);
@@ -109,9 +117,9 @@ int Fake_FTP_Server(string address, int port, string logfile, int max_clients)
             struct sockaddr_in6 * c_address = (struct sockaddr_in6 *)&client_address;
             inet_ntop(AF_INET6, &c_address->sin6_addr, data.client_address, INET6_ADDRSTRLEN);
         }
-        data.client_number=client;
+        data.client_number = client;
+        server_logfile = logfile;
 
-        //data->client_address = "12.13.14.15";
         if (signal_detected)
             break;
 
@@ -120,7 +128,6 @@ int Fake_FTP_Server(string address, int port, string logfile, int max_clients)
             Print_Error("New thread creation error!");
     }while (!signal_detected);
 
-    //cout << Get_Time() << endl;
     // Cleanup
     if (close(sock)<0)
         Print_Error("Closing socket error!");

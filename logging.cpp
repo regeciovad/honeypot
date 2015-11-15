@@ -32,3 +32,18 @@ string Get_Time()
     else
         return "Strftime failed.";
 }
+
+void write_log(string logfile, string mode, string address, string name, string password)
+{
+    FILE *new_file;
+    new_file = fopen(logfile.c_str(), "a");
+    if (new_file != NULL)
+    {
+        string timed = Get_Time();
+        stringstream ssout;
+        ssout << mode << " " << timed + " " + address + " " + name + " " + password + "\n";
+        string out = ssout.str();
+
+        fprintf(new_file, "%s", out.c_str());
+    }
+}

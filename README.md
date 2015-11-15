@@ -24,4 +24,4 @@ IPv6 KO
 234
 
 # To Do List:
-
+osetri pripadne chyby, pokud nejde otevrit soubor - return + uklid
