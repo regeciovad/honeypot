@@ -12,12 +12,6 @@
 #include <stdio.h>
 #include <getopt.h>
 
-#define RESULT_OK 0
-#define RESULT_FAILURE 1
-
 using namespace std;
-
-// Function declarations
-void Print_Help();
 
 #endif

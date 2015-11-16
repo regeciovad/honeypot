@@ -29,16 +29,83 @@ void Signal_Catcher(int n)
 void * Connect(void *pointer)
 {
     struct thread_data *client_thread = (struct thread_data *)pointer;
-    cout << client_thread->client_address << endl;
-    cout << server_logfile << endl;
+    char buffer[MAXLENMESS];
+    int recieved;
     string address = string(client_thread->client_address);
-    string name = "Karel";
-    string password = "mojexxx";
-    string msg="220 Service ready for new user\r\n";
+    string name = "";
+    string password = "";
+    string msg = "220 Service ready for new user.\r\n";
+    string client_msg;
+    bool continue_bool = true;
     if (send(client_thread->client_number, msg.c_str(), msg.length(), 0) < 0)
-        Print_Error("Sending message error!");
+    {
+        continue_bool = false;
+        cout << "Sending message error!" << endl;
+    }
+    while(continue_bool)
+    {
+        recieved = recv(client_thread->client_number, buffer, MAXLENMESS, 0);
+        if (recieved == 0)
+        {
+            continue_bool = false;
+            cout << "Closed connection by user." << endl;
+            continue;
+        }
+        else if (recieved < 0)
+        {
+            continue_bool = false;
+            cout << "Recv error!" << endl;
+            continue;
+        }
+        client_msg = string(buffer);
+        if (client_msg.substr(0,4) == "USER")
+        {
+            name = "";
+            for (int x=4; x<recieved; x++)
+            {
+                if (!isspace(buffer[x])) 
+                    name.push_back(buffer[x]);
+            }
+            msg = "331 User name okay, need password.\r\n";
+            if (send(client_thread->client_number, msg.c_str(), msg.length(), 0) < 0)
+            {
+                cout << "Sending message error!" << endl;
+                continue_bool = false;
+                continue;
+            }
+        }
+        else if (client_msg.substr(0,4) == "PASS")
+        {
+            password = "";
+            for (int x=4; x<recieved; x++)
+            {
+                if (!isspace(buffer[x])) 
+                    password.push_back(buffer[x]);
+            }
+            msg = "530 Not logged in.\r\n";
+            if (send(client_thread->client_number, msg.c_str(), msg.length(), 0) < 0)
+                cout << "Sending message error!" << endl;
+            continue_bool = false;
+            continue;
+        }
+        else if (client_msg.substr(0,4) == "QUIT")
+        {
+            msg = "221 Service closing control connection.\r\n";
+            if (send(client_thread->client_number, msg.c_str(), msg.length(), 0) < 0)
+                cout << "Sending message error!" << endl;
+            continue_bool = false;
+            continue;
+        }
+        else
+        {
+            continue_bool = false;
+            continue;
+        }
+
+    }
     pthread_mutex_lock(&mutex_logfile);
-    write_log(server_logfile, "FTP", address, name, password);
+    if (write_log(server_logfile, "FTP", address, name, password) == RESULT_FAILURE)
+        cout << "Logging error!" << endl;
     pthread_mutex_unlock(&mutex_logfile);
     close(client_thread->client_number);
     //free(pointer);
@@ -64,7 +131,6 @@ int Fake_FTP_Server(string address, int port, string logfile, int max_clients)
 
     // Control of IP address and creating of socket, bind
     if (inet_pton(AF_INET, address.c_str(), &server_address.sin_addr) > 0)
-    //if (true)
     {
         ip_version = "IPv4";
         if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)

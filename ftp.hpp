@@ -20,8 +20,7 @@
 #include <unistd.h>
 #include <netdb.h>
 
-#define RESULT_OK 0
-#define RESULT_FAILURE 1
+#define MAXLENMESS 1024
 
 using namespace std;
 

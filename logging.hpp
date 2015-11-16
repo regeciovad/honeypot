@@ -15,11 +15,13 @@
 
 using namespace std;
 
+#define RESULT_OK 0
 #define RESULT_FAILURE 1
 
 // Function declarations
+void Print_Help();
 void Print_Error(string message);
 string Get_Time();
-void write_log(string logfile, string mode, string address, string name, string password);
+int write_log(string logfile, string mode, string address, string name, string password);
 
 #endif

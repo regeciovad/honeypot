@@ -9,6 +9,26 @@
 using namespace std;
 const int BUFFERSIZE = 255;
 
+
+// Function prints help for application
+void Print_Help()
+{
+    cout << "FTP/SSH Honeypot" << endl;
+    cout << "Usage: ./fakesrv -m mode -a address -p port -l logfile" << endl;
+    cout << "                 [-r rsakey] [-c max_clients] [-t max_attempts]" << endl;
+    cout << "Required arguments:" << endl;
+    cout << "   -m mode       Mode name (ftp or ssh)" << endl;
+    cout << "   -a address    IPv4 or IPv6 address" << endl;
+    cout << "   -p port       Port number" << endl;
+    cout << "   -l logfile    Logfile" << endl;
+    cout << "Optional arguments:" << endl;
+    cout << "   -r rsakey     Private RSA key, REQUIRED in ssh mode" << endl;
+    cout << "   -c number     Maximal number of connected users (default 10)" << endl;
+    cout << "   -t number     Maximal number of login tries (default 3) in ssh mode" << endl;
+    cout << "Created by Dominika Regeciova" << endl;
+    exit(RESULT_FAILURE);
+}
+
 // Function for printing error message in a whole project
 void Print_Error(string message)
 {
@@ -33,7 +53,9 @@ string Get_Time()
         return "Strftime failed.";
 }
 
-void write_log(string logfile, string mode, string address, string name, string password)
+// Function for logging
+// It will returns error code if file can't be open
+int write_log(string logfile, string mode, string address, string name, string password)
 {
     FILE *new_file;
     new_file = fopen(logfile.c_str(), "a");
@@ -43,7 +65,9 @@ void write_log(string logfile, string mode, string address, string name, string 
         stringstream ssout;
         ssout << mode << " " << timed + " " + address + " " + name + " " + password + "\n";
         string out = ssout.str();
-
         fprintf(new_file, "%s", out.c_str());
+        fclose (new_file);
+        return RESULT_OK;
     }
+    return RESULT_FAILURE;
 }
