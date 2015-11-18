@@ -7,6 +7,7 @@
 #include "fakesrv.hpp"
 #include "logging.hpp"
 #include "ftp.hpp"
+#include "ssh.hpp"
 
 using namespace std;
 
@@ -25,7 +26,6 @@ int main(int argc, char *argv[])
     string rsakey;
     int max_clients = 10;
     int max_attempts = 3;
-    int return_value = RESULT_OK;
 
     // Arguments check
     while ((option = getopt(argc, argv, "m:a:p:l:r:c:t:")) != -1)
@@ -80,9 +80,12 @@ int main(int argc, char *argv[])
     {
         if (rsakey == "")
             Print_Error("Missing argument -r!");
-        cout << "RSAkey: " << rsakey << endl;
-        cout << "Max attempts: " << max_attempts << endl;
+        // Fake SSH Server, which needs address, port number, logfile,
+        // maximal number of clients, maximal number of login attempts, 
+        // and rsa key
+        Fake_SSH_Server(address, port, logfile, max_clients, rsakey, max_attempts);
     }
+
     // if mode is ftp, rsakey and max attemps should not be defiend
     else if (mode == "ftp")
     {
@@ -90,11 +93,7 @@ int main(int argc, char *argv[])
             Print_Error("Too many argument for ftp mode!");
         // Fake FTP Server, which needs address, port number, logfile and
         // maximal number of clients.
-        // In case of error it will print error message into stderr
-        // and return RESULT_FAILURE
-        return_value = Fake_FTP_Server(address, port, logfile, max_clients);
-        if (return_value == RESULT_FAILURE)
-            return RESULT_FAILURE;
+        Fake_FTP_Server(address, port, logfile, max_clients);
     }
     // Mode was something else or missing
     else

@@ -27,6 +27,6 @@ using namespace std;
 // Function declarations
 void Signal_Catcher(int n);
 void * Connect(void *pointer);
-int Fake_FTP_Server(string address, int port, string logfile, int max_clients);
+void Fake_FTP_Server(string address, int port, string logfile, int max_clients);
 
 #endif

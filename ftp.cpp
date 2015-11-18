@@ -10,7 +10,7 @@
 using namespace std;
 
 int signal_detected = 0;
-string server_logfile;
+string ftp_server_logfile;
 
 pthread_mutex_t mutex_logfile = PTHREAD_MUTEX_INITIALIZER;
 
@@ -104,7 +104,7 @@ void * Connect(void *pointer)
 
     }
     pthread_mutex_lock(&mutex_logfile);
-    if (write_log(server_logfile, "FTP", address, name, password) == RESULT_FAILURE)
+    if (write_log(ftp_server_logfile, "FTP", address, name, password) == RESULT_FAILURE)
         cout << "Logging error!" << endl;
     pthread_mutex_unlock(&mutex_logfile);
     close(client_thread->client_number);
@@ -113,7 +113,7 @@ void * Connect(void *pointer)
 }
 
 
-int Fake_FTP_Server(string address, int port, string logfile, int max_clients)
+void Fake_FTP_Server(string address, int port, string logfile, int max_clients)
 {
     struct sockaddr_in server_address;
     struct sockaddr_in6 server_address6;
@@ -164,14 +164,14 @@ int Fake_FTP_Server(string address, int port, string logfile, int max_clients)
     // Until SIGINT(or SIGQUIT) do
     do
     {
-        sigaction(SIGINT, &signal_action, NULL);
-        sigaction(SIGQUIT, &signal_action, NULL);
+        //sigaction(SIGINT, &signal_action, NULL);
+        //sigaction(SIGQUIT, &signal_action, NULL);
         struct sockaddr_storage client_address;
         struct thread_data data;
         int client;
         sa_len = sizeof(client_address);
         if ((client = accept(sock, (struct sockaddr *)&client_address, &sa_len)) < 0)
-            return (RESULT_OK);
+            exit (RESULT_OK);
         getpeername(client, (struct sockaddr *)&client_address, &sa_len);
         if (client_address.ss_family == AF_INET)
         {
@@ -184,7 +184,7 @@ int Fake_FTP_Server(string address, int port, string logfile, int max_clients)
             inet_ntop(AF_INET6, &c_address->sin6_addr, data.client_address, INET6_ADDRSTRLEN);
         }
         data.client_number = client;
-        server_logfile = logfile;
+        ftp_server_logfile = logfile;
 
         if (signal_detected)
             break;
@@ -198,5 +198,4 @@ int Fake_FTP_Server(string address, int port, string logfile, int max_clients)
     if (close(sock)<0)
         Print_Error("Closing socket error!");
     pthread_exit(NULL);
-    return RESULT_OK;
 }

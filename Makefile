@@ -5,16 +5,17 @@
 CXX=g++
 RM=rm -rf
 CXXFLAGS=-std=c++11 -g -Wall -pedantic -pthread
-SRCS=fakesrv.cpp ftp.cpp logging.cpp
-HDRS=fakesrv.hpp ftp.hpp logging.hpp
+SRCS=fakesrv.cpp ftp.cpp ssh.cpp logging.cpp
+HDRS=fakesrv.hpp ftp.hpp ssh.hpp logging.hpp
 EXECUTABLE=fakesrv
+LSSH = -lssh -lssh_threads
 
 .PHONY: clean
 
 default: $(EXECUTABLE)
 
 $(EXECUTABLE): $(SRCS) $(HDRS)
-	$(CXX) $(CXXFLAGS) $(SRCS) -o $@
+	$(CXX) $(CXXFLAGS) $(SRCS) -o $@ $(LSSH)
 
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)

@@ -25,3 +25,9 @@ IPv6 KO
 
 # To Do List:
 osetri pripadne chyby, pokud nejde otevrit soubor - return + uklid
+mozna pridat print_error_no_exit
+
+valgrind --leak-check=yes ./fakesrv -m ftp -a 10.0.2.15 -p 21 -l hello
+
+testovat: sudo valgrind --leak-check=yes ./fakesrv -m ftp -a 10.0.2.15 -p 21 -l hello
+
