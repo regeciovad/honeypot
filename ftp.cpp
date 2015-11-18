@@ -11,7 +11,6 @@ using namespace std;
 
 int signal_detected = 0;
 string ftp_server_logfile;
-
 pthread_mutex_t mutex_logfile = PTHREAD_MUTEX_INITIALIZER;
 
 struct thread_data
@@ -26,6 +25,7 @@ void Signal_Catcher(int n)
     signal_detected = 1;
 }
 
+// Function for authentication of users
 void * Connect(void *pointer)
 {
     struct thread_data *client_thread = (struct thread_data *)pointer;
@@ -37,13 +37,17 @@ void * Connect(void *pointer)
     string msg = "220 Service ready for new user.\r\n";
     string client_msg;
     bool continue_bool = true;
+
+    // Send information about server is ready
     if (send(client_thread->client_number, msg.c_str(), msg.length(), 0) < 0)
     {
         continue_bool = false;
         cout << "Sending message error!" << endl;
     }
+
     while(continue_bool)
     {
+        // Get message from user
         recieved = recv(client_thread->client_number, buffer, MAXLENMESS, 0);
         if (recieved == 0)
         {
@@ -57,6 +61,7 @@ void * Connect(void *pointer)
             cout << "Recv error!" << endl;
             continue;
         }
+        // User sent username
         client_msg = string(buffer);
         if (client_msg.substr(0,4) == "USER")
         {
@@ -74,6 +79,7 @@ void * Connect(void *pointer)
                 continue;
             }
         }
+        // User sent password
         else if (client_msg.substr(0,4) == "PASS")
         {
             password = "";
@@ -88,6 +94,7 @@ void * Connect(void *pointer)
             continue_bool = false;
             continue;
         }
+        // User quits connection before sending passwordd
         else if (client_msg.substr(0,4) == "QUIT")
         {
             msg = "221 Service closing control connection.\r\n";
@@ -103,6 +110,7 @@ void * Connect(void *pointer)
         }
 
     }
+    // Log in information
     pthread_mutex_lock(&mutex_logfile);
     if (write_log(ftp_server_logfile, "FTP", address, name, password) == RESULT_FAILURE)
         cout << "Logging error!" << endl;
@@ -112,7 +120,7 @@ void * Connect(void *pointer)
     pthread_exit(NULL);
 }
 
-
+// The function to setup of server, find out of ip adress, creating of new pthread and starting Connection
 void Fake_FTP_Server(string address, int port, string logfile, int max_clients)
 {
     struct sockaddr_in server_address;
@@ -164,14 +172,13 @@ void Fake_FTP_Server(string address, int port, string logfile, int max_clients)
     // Until SIGINT(or SIGQUIT) do
     do
     {
-        //sigaction(SIGINT, &signal_action, NULL);
-        //sigaction(SIGQUIT, &signal_action, NULL);
         struct sockaddr_storage client_address;
         struct thread_data data;
         int client;
         sa_len = sizeof(client_address);
         if ((client = accept(sock, (struct sockaddr *)&client_address, &sa_len)) < 0)
             exit (RESULT_OK);
+        // Find out if client ip address is IPv4 or IPv6
         getpeername(client, (struct sockaddr *)&client_address, &sa_len);
         if (client_address.ss_family == AF_INET)
         {
@@ -185,7 +192,8 @@ void Fake_FTP_Server(string address, int port, string logfile, int max_clients)
         }
         data.client_number = client;
         ftp_server_logfile = logfile;
-
+        
+        // Server quit
         if (signal_detected)
             break;
 

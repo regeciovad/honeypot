@@ -37,6 +37,9 @@ void Print_Error(string message)
 }
 
 // Function returning actual date and time in format: YYYY-MM-DD HH:MM:SS
+// How to get time and how convert it to the right format is inspirated by:
+// www.informit.com/guides/content.aspx?g=cplusplus&seqNum=340
+// Author: Danny Kalev
 string Get_Time()
 {
     // Get current time and convert it to tm
