@@ -21,7 +21,7 @@ Optional arguments:
    -t number     Maximal number of login tries (default 3) in ssh mode
 
 Generation of rsa key:
-   ssh-keygen -t rsa -f my2.key
+   ssh-keygen -t rsa -f my.key
 
 Examples of use:
    -ftp:         ./fakesrv -m ftp -a 127.0.0.1 -p 2345 -l logfile

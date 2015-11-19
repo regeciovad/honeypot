@@ -179,14 +179,17 @@ void Fake_FTP_Server(string address, int port, string logfile, int max_clients)
         pthread_mutex_unlock(&mutex_clients);
         struct sockaddr_storage client_address;
         struct thread_data * data = (struct thread_data *) malloc(sizeof(struct thread_data));
-        //struct thread_data data;
         int client;
         sa_len = sizeof(client_address);
         if ((client = accept(sock, (struct sockaddr *)&client_address, &sa_len)) < 0)
+        {
+            free(data);
             exit (RESULT_OK);
+        }
         if (clients_amount > max_clients)
         {
             close(client);
+            free(data);
             continue;
         }
         data->client_number = client;
@@ -206,11 +209,17 @@ void Fake_FTP_Server(string address, int port, string logfile, int max_clients)
         
         // Server quit
         if (signal_detected)
+        {
+            free(data);
             break;
+        }
 
         pthread_t new_thread;
         if (pthread_create(&new_thread, NULL, &Connect, (void *)data) != 0)
+        {
+            free(data);
             Print_Error("New thread creation error!");
+        }
     }while (!signal_detected);
 
     // Cleanup
