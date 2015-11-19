@@ -11,6 +11,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <getopt.h>
+#include "logging.hpp"
+#include "ftp.hpp"
+#include "ssh.hpp"
 
 using namespace std;
 

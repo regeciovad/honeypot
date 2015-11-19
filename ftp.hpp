@@ -19,6 +19,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <netdb.h>
+#include "logging.hpp"
 
 #define MAXLENMESS 1024
 

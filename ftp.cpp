@@ -5,13 +5,12 @@
 */
 
 #include "ftp.hpp"
-#include "logging.hpp"
 
-using namespace std;
-
+// Global variables and structure
 int signal_detected = 0;
 string ftp_server_logfile;
 pthread_mutex_t mutex_logfile = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex_clients = PTHREAD_MUTEX_INITIALIZER;
 
 struct thread_data
 {
@@ -28,6 +27,7 @@ void Signal_Catcher(int n)
 // Function for authentication of users
 void * Connect(void *pointer)
 {
+    
     struct thread_data *client_thread = (struct thread_data *)pointer;
     char buffer[MAXLENMESS];
     int recieved;
@@ -116,7 +116,7 @@ void * Connect(void *pointer)
         cout << "Logging error!" << endl;
     pthread_mutex_unlock(&mutex_logfile);
     close(client_thread->client_number);
-    //free(pointer);
+    free(pointer);
     pthread_exit(NULL);
 }
 
@@ -136,6 +136,7 @@ void Fake_FTP_Server(string address, int port, string logfile, int max_clients)
     sigaction(SIGINT, &signal_action, NULL);
     sigaction(SIGQUIT, &signal_action, NULL);
     int optval = 1;
+    int clients_amount = 0;
 
     // Control of IP address and creating of socket, bind
     if (inet_pton(AF_INET, address.c_str(), &server_address.sin_addr) > 0)
@@ -169,28 +170,38 @@ void Fake_FTP_Server(string address, int port, string logfile, int max_clients)
     if (listen(sock, max_clients)<0)
         Print_Error("Socket queue error!");
 
+
     // Until SIGINT(or SIGQUIT) do
     do
     {
+        pthread_mutex_lock(&mutex_clients);
+        clients_amount = clients_amount + 1;
+        pthread_mutex_unlock(&mutex_clients);
         struct sockaddr_storage client_address;
-        struct thread_data data;
+        struct thread_data * data = (struct thread_data *) malloc(sizeof(struct thread_data));
+        //struct thread_data data;
         int client;
         sa_len = sizeof(client_address);
         if ((client = accept(sock, (struct sockaddr *)&client_address, &sa_len)) < 0)
             exit (RESULT_OK);
+        if (clients_amount > max_clients)
+        {
+            close(client);
+            continue;
+        }
+        data->client_number = client;
         // Find out if client ip address is IPv4 or IPv6
         getpeername(client, (struct sockaddr *)&client_address, &sa_len);
         if (client_address.ss_family == AF_INET)
         {
             struct sockaddr_in * c_address = (struct sockaddr_in *)&client_address;
-            inet_ntop(AF_INET, &c_address->sin_addr, data.client_address, INET6_ADDRSTRLEN);
+            inet_ntop(AF_INET, &c_address->sin_addr, data->client_address, INET6_ADDRSTRLEN);
         }
         else
         {
             struct sockaddr_in6 * c_address = (struct sockaddr_in6 *)&client_address;
-            inet_ntop(AF_INET6, &c_address->sin6_addr, data.client_address, INET6_ADDRSTRLEN);
+            inet_ntop(AF_INET6, &c_address->sin6_addr, data->client_address, INET6_ADDRSTRLEN);
         }
-        data.client_number = client;
         ftp_server_logfile = logfile;
         
         // Server quit
@@ -198,7 +209,7 @@ void Fake_FTP_Server(string address, int port, string logfile, int max_clients)
             break;
 
         pthread_t new_thread;
-        if (pthread_create(&new_thread, NULL, &Connect, (void *)&data) != 0)
+        if (pthread_create(&new_thread, NULL, &Connect, (void *)data) != 0)
             Print_Error("New thread creation error!");
     }while (!signal_detected);
 

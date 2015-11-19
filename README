@@ -39,5 +39,3 @@ Files:
    ftp.hpp
    ssh.cpp
    ssh.hpp
-
-testovat: sudo valgrind --leak-check=yes ./fakesrv -m ftp -a 10.0.2.15 -p 21 -l hello
