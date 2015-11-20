@@ -55,29 +55,29 @@ int main(int argc, char *argv[])
 
     // IP adress control (only for missing argument)
     if (address == "")
-        Print_Error("Missing argument -a!");
+        Print_Error_And_Exit("Missing argument -a!");
 
     // Port number control
     // Nummber 0 is reserved
     if (port == 0)
-        Print_Error("Missing argument -p!");
+        Print_Error_And_Exit("Missing argument -p!");
     // Maximal value
     else if (port > 65535)
-        Print_Error("Wrong argument -p!");
+        Print_Error_And_Exit("Wrong argument -p!");
 
     // Logfile control
     if (logfile == "")
-        Print_Error("Missing argument -l!");
+        Print_Error_And_Exit("Missing argument -l!");
 
     // Mode control, it have to be 'ftp' or 'ssh'
     // If mode is ssh, rsakey must be specified
     if (mode == "ssh")
     {
         if (rsakey == "")
-            Print_Error("Missing argument -r!");
+            Print_Error_And_Exit("Missing argument -r!");
         // Fake SSH Server, which needs address, port number, logfile,
-        // maximal number of clients, maximal number of login attempts, 
-        // and rsa key
+        // maximal number of clients, RSA key,
+        // and maximal number of login attempts
         Fake_SSH_Server(address, port, logfile, max_clients, rsakey, max_attempts);
     }
 
@@ -85,12 +85,12 @@ int main(int argc, char *argv[])
     else if (mode == "ftp")
     {
         if (rsakey != "" || (max_attempts != 3))
-            Print_Error("Too many argument for ftp mode!");
+            Print_Error_And_Exit("Too many argument for ftp mode!");
         // Fake FTP Server, which needs address, port number, logfile and
         // maximal number of clients.
         Fake_FTP_Server(address, port, logfile, max_clients);
     }
     // Mode was something else or missing
     else
-        Print_Error("Wrong arguments (mode)!");
+        Print_Error_And_Exit("Wrong arguments (mode)!");
 }

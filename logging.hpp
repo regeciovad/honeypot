@@ -21,6 +21,7 @@ using namespace std;
 // Function declarations
 void Print_Help();
 void Print_Error(string message);
+void Print_Error_And_Exit(string message);
 string Get_Time();
 int write_log(string logfile, string mode, string address, string name, string password);
 

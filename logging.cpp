@@ -6,9 +6,7 @@
 
 #include "logging.hpp"
 
-using namespace std;
 const int BUFFERSIZE = 255;
-
 
 // Function prints help for application
 void Print_Help()
@@ -29,8 +27,15 @@ void Print_Help()
     exit(RESULT_FAILURE);
 }
 
-// Function for printing error message in a whole project
+// Function for printing error message in the whole project
 void Print_Error(string message)
+{
+    cerr << message << endl;
+}
+
+// Function for printing error message and in the whole project
+// with canceling the application
+void Print_Error_And_Exit(string message)
 {
     cerr << message << endl;
     exit(RESULT_FAILURE);
